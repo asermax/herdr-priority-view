@@ -1,0 +1,9 @@
+id = "asermax.new-priority-view"
+name = "New Priority View"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Replaces the agent panel ordering with one that keeps the agent waiting longest at the top."
+platforms = ["linux", "macos"]
+
+[[startup]]
+command = ["bun", "bin/apply.ts"]
