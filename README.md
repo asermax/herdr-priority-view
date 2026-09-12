@@ -14,7 +14,7 @@ sequence ascending, so the oldest waiting agent comes first.
 
 herdr keeps a single active agent view, set through `agent.view.set`. The plugin
 runs once on server startup and sets that view under the source
-`asermax.priority-view`. The sidebar shows the view label, `oldest first`.
+`asermax.priority-view`. The sidebar shows the view label, `priority`.
 
 There is nothing to toggle. To go back to the built-in ordering, disable the
 plugin and clear the view:
