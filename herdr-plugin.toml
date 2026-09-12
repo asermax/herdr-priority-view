@@ -1,9 +1,39 @@
 id = "asermax.priority-view"
 name = "Priority View"
-version = "0.1.0"
+version = "0.2.0"
 min_herdr_version = "0.9.0"
-description = "Replaces the agent panel ordering with one that keeps the agent waiting longest at the top."
+description = "Agent panel ordered by blocked state, then per-agent priority, then how long each agent has been waiting."
 platforms = ["linux", "macos"]
 
 [[startup]]
 command = ["bun", "bin/apply.ts"]
+
+[[actions]]
+id = "high"
+title = "Priority: high"
+contexts = ["pane"]
+command = ["bun", "bin/set.ts", "high"]
+
+[[actions]]
+id = "normal"
+title = "Priority: normal"
+contexts = ["pane"]
+command = ["bun", "bin/set.ts", "normal"]
+
+[[actions]]
+id = "low"
+title = "Priority: low"
+contexts = ["pane"]
+command = ["bun", "bin/set.ts", "low"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["bun", "bin/on-agent-event.ts"]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["bun", "bin/on-agent-event.ts"]
+
+[[events]]
+on = "pane.closed"
+command = ["bun", "bin/on-pane-closed.ts"]

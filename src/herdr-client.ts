@@ -2,6 +2,8 @@ import { createConnection } from "node:net";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
+export const METADATA_SOURCE = "asermax.priority-view";
+
 export class HerdrError extends Error {
   constructor(
     readonly code: string,
@@ -23,7 +25,13 @@ interface RpcEnvelope {
   readonly error?: { readonly code: string; readonly message: string };
 }
 
-export const send = (method: string, params: Record<string, unknown>): Promise<unknown> =>
+export interface AgentInfo {
+  readonly pane_id: string;
+  readonly agent_status: string | null;
+  readonly tokens?: Record<string, string> | null;
+}
+
+const send = (method: string, params: Record<string, unknown>): Promise<any> =>
   new Promise((resolve, reject) => {
     let socket: ReturnType<typeof createConnection>;
     try {
@@ -77,3 +85,15 @@ export const send = (method: string, params: Record<string, unknown>): Promise<u
 
     socket.on("error", (err) => finish(() => reject(err)));
   });
+
+export const agentList = (): Promise<AgentInfo[]> =>
+  send("agent.list", {}).then((r) => r.agents as AgentInfo[]);
+
+export const agentGet = (paneId: string): Promise<AgentInfo> =>
+  send("agent.get", { target: paneId }).then((r) => r.agent as AgentInfo);
+
+export const paneReportTokens = (paneId: string, tokens: Record<string, string | null>): Promise<void> =>
+  send("pane.report_metadata", { pane_id: paneId, source: METADATA_SOURCE, tokens }).then(() => undefined);
+
+export const agentViewSet = (params: Record<string, unknown>): Promise<void> =>
+  send("agent.view.set", { source: METADATA_SOURCE, ...params }).then(() => undefined);
