@@ -7,10 +7,9 @@ herdr's built-in `agent_panel_sort = "priority"` pushes the agent that changed
 state most recently to the top, so agents that finished long ago slide down and
 get neglected. This plugin sets an agent view that orders the panel as:
 
-1. blocked agents, higher priority first
-2. everything else, higher priority first
-3. within the same priority, by status (done, idle, unknown, working)
-4. within the same status, the agent that has been waiting the longest first
+1. by status: blocked, then done, then working, then idle, then unknown
+2. within a status, higher priority first
+3. within a priority, the agent that has been waiting the longest first
 
 ## Priorities
 
@@ -54,10 +53,11 @@ tokens go, so resuming that conversation later starts it back at normal.
 
 ## How it works
 
-herdr keeps a single active agent view, set through `agent.view.set`. Its sort
-fields cannot express "blocked first, then priority", so the plugin writes a
-`rank` metadata token per agent pane (blocked flag plus priority) and the view
-sorts by that token, then status, then herdr's state-change sequence. Event hooks
+herdr keeps a single active agent view, set through `agent.view.set`. Its `status`
+sort orders the five states in one fixed way, so it cannot rank statuses and then
+let priority decide the rest. The plugin writes a `rank` metadata token per agent
+pane instead, holding the status rank and the priority digit, and the view sorts
+by that token and then by herdr's state-change sequence. Event hooks
 on `pane.agent_detected` and `pane.agent_status_changed` recompute the token from
 the live rank token, falling back to the state file when tokens are missing after
 a restart. There is no long-running process.

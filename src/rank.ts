@@ -1,6 +1,20 @@
 import type { Priority } from "./priority";
 
-// The view sorts by this single token because herdr's sort fields cannot express
-// "blocked before everything, then priority". Status and age are later sort keys.
+const STATUS_RANK = {
+  blocked: "0",
+  done: "1",
+  working: "2",
+  idle: "3",
+  unknown: "4",
+} as const;
+
+const UNRECOGNISED_STATUS_RANK = "4";
+
+/**
+ * herdr's own `status` sort orders the five states against each other in one
+ * fixed way, so it cannot put blocked first and let priority decide the rest.
+ * Folding attention order and priority into one token buys both, and makes the
+ * order of `done` against `idle` ours to choose instead of herdr's.
+ */
 export const rank = (status: string | null | undefined, priority: Priority): string =>
-  `${status === "blocked" ? "0" : "1"}${priority}`;
+  `${STATUS_RANK[status as keyof typeof STATUS_RANK] ?? UNRECOGNISED_STATUS_RANK}${priority}`;
