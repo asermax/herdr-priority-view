@@ -25,6 +25,11 @@ interface RpcEnvelope {
   readonly error?: { readonly code: string; readonly message: string };
 }
 
+export interface PaneInfo {
+  readonly pane_id: string;
+  readonly tokens?: Record<string, string> | null;
+}
+
 export interface AgentInfo {
   readonly pane_id: string;
   readonly agent_status: string | null;
@@ -92,6 +97,9 @@ export const agentList = (): Promise<AgentInfo[]> =>
 
 export const agentGet = (paneId: string): Promise<AgentInfo> =>
   send("agent.get", { target: paneId }).then((r) => r.agent as AgentInfo);
+
+export const paneGet = (paneId: string): Promise<PaneInfo> =>
+  send("pane.get", { pane_id: paneId }).then((r) => r.pane as PaneInfo);
 
 export const paneReportTokens = (paneId: string, tokens: Record<string, string | null>): Promise<void> =>
   send("pane.report_metadata", { pane_id: paneId, source: METADATA_SOURCE, tokens }).then(() => undefined);

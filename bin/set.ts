@@ -1,7 +1,9 @@
+import { agentList } from "../src/herdr-client";
 import { DEFAULT_PRIORITY, isPriorityName, PRIORITY } from "../src/priority";
 import { reportAgent } from "../src/report-agent";
 import { resolveFocusedAgent } from "../src/resolve-focused-agent";
-import { removeEntry, setEntry } from "../src/state";
+import { sessionKey } from "../src/session-key";
+import { pruneTo, removePriority, setPriority } from "../src/state";
 
 const name = process.argv[2] ?? "";
 
@@ -13,14 +15,16 @@ if (!isPriorityName(name)) {
 try {
   const agent = await resolveFocusedAgent();
   const priority = PRIORITY[name];
+  const key = sessionKey(agent);
 
-  if (priority === DEFAULT_PRIORITY) {
-    removeEntry(agent);
-  } else {
-    setEntry(agent, priority);
+  await reportAgent(agent, priority);
+
+  if (key != null) {
+    if (priority === DEFAULT_PRIORITY) removePriority(key);
+    else setPriority(key, priority);
+
+    pruneTo((await agentList()).flatMap((live) => sessionKey(live) ?? []));
   }
-
-  await reportAgent(agent.pane_id, agent.agent_status, priority);
 } catch (err) {
   process.stderr.write(`priority-view: ${err instanceof Error ? err.message : String(err)}\n`);
   process.exit(1);

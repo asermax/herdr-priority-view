@@ -1,15 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { AgentInfo } from "./herdr-client";
 import type { Priority } from "./priority";
 
-interface Entry {
-  readonly priority: Priority;
-  readonly pane_id: string;
-}
-
-type Entries = Record<string, Entry>;
+type Entries = Record<string, Priority>;
 
 const statePath = (): string => {
   const dir = process.env.HERDR_PLUGIN_STATE_DIR;
@@ -33,33 +27,30 @@ const readEntries = (): Entries => {
 
 const writeEntries = (entries: Entries): void => writeFileSync(statePath(), JSON.stringify(entries, null, 2));
 
-// Priorities follow the conversation, so the agent session id is the key. Panes
-// without a session fall back to their pane id, which herdr also keeps stable.
-export const entryKey = (agent: AgentInfo): string => agent.agent_session?.value ?? `pane:${agent.pane_id}`;
+export const getPriority = (key: string): Priority | undefined => readEntries()[key];
 
-export const getEntry = (agent: AgentInfo): Entry | undefined => readEntries()[entryKey(agent)];
+export const setPriority = (key: string, priority: Priority): void =>
+  writeEntries({ ...readEntries(), [key]: priority });
 
-export const setEntry = (agent: AgentInfo, priority: Priority): void => {
+export const removePriority = (key: string): void => {
   const entries = readEntries();
 
-  entries[entryKey(agent)] = { priority, pane_id: agent.pane_id };
+  delete entries[key];
 
   writeEntries(entries);
 };
 
-export const removeEntry = (agent: AgentInfo): void => {
+/**
+ * Closing a pane fires no agent release, so an entry can outlive its conversation.
+ * Pressing a priority key is the safe moment to drop those: every agent has been
+ * detected by then, so a key with no live session belongs to a gone conversation.
+ */
+export const pruneTo = (liveKeys: readonly string[]): void => {
   const entries = readEntries();
+  const live = new Set(liveKeys);
 
-  delete entries[entryKey(agent)];
-
-  writeEntries(entries);
-};
-
-export const removeEntriesForPane = (paneId: string): void => {
-  const entries = readEntries();
-
-  for (const [key, entry] of Object.entries(entries)) {
-    if (entry.pane_id === paneId) delete entries[key];
+  for (const key of Object.keys(entries)) {
+    if (!live.has(key)) delete entries[key];
   }
 
   writeEntries(entries);
