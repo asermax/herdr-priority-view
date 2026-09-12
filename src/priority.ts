@@ -10,3 +10,6 @@ export type Priority = (typeof PRIORITY)[PriorityName];
 export const DEFAULT_PRIORITY: Priority = PRIORITY.normal;
 
 export const isPriorityName = (value: string): value is PriorityName => value in PRIORITY;
+
+export const isPriority = (value: string | undefined): value is Priority =>
+  Object.values<string>(PRIORITY).includes(value ?? "");

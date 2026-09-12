@@ -1,6 +1,6 @@
 import { parsePaneEvent } from "../src/event";
-import { removePriority } from "../src/state";
+import { removeEntriesForPane } from "../src/state";
 
 const event = parsePaneEvent();
 
-if (event != null) removePriority(event.pane_id);
+if (event != null) removeEntriesForPane(event.pane_id);

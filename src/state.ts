@@ -1,9 +1,15 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { DEFAULT_PRIORITY, type Priority } from "./priority";
+import type { AgentInfo } from "./herdr-client";
+import type { Priority } from "./priority";
 
-type Priorities = Record<string, Priority>;
+interface Entry {
+  readonly priority: Priority;
+  readonly pane_id: string;
+}
+
+type Entries = Record<string, Entry>;
 
 const statePath = (): string => {
   const dir = process.env.HERDR_PLUGIN_STATE_DIR;
@@ -17,26 +23,44 @@ const statePath = (): string => {
   return join(dir, "priorities.json");
 };
 
-const readPriorities = (): Priorities => {
+const readEntries = (): Entries => {
   try {
-    return JSON.parse(readFileSync(statePath(), "utf8")) as Priorities;
+    return JSON.parse(readFileSync(statePath(), "utf8")) as Entries;
   } catch {
     return {};
   }
 };
 
-export const getPriority = (paneId: string): Priority => readPriorities()[paneId] ?? DEFAULT_PRIORITY;
+const writeEntries = (entries: Entries): void => writeFileSync(statePath(), JSON.stringify(entries, null, 2));
 
-export const setPriority = (paneId: string, priority: Priority): void => {
-  const priorities = readPriorities();
+// Priorities follow the conversation, so the agent session id is the key. Panes
+// without a session fall back to their pane id, which herdr also keeps stable.
+export const entryKey = (agent: AgentInfo): string => agent.agent_session?.value ?? `pane:${agent.pane_id}`;
 
-  if (priority === DEFAULT_PRIORITY) {
-    delete priorities[paneId];
-  } else {
-    priorities[paneId] = priority;
-  }
+export const getEntry = (agent: AgentInfo): Entry | undefined => readEntries()[entryKey(agent)];
 
-  writeFileSync(statePath(), JSON.stringify(priorities, null, 2));
+export const setEntry = (agent: AgentInfo, priority: Priority): void => {
+  const entries = readEntries();
+
+  entries[entryKey(agent)] = { priority, pane_id: agent.pane_id };
+
+  writeEntries(entries);
 };
 
-export const removePriority = (paneId: string): void => setPriority(paneId, DEFAULT_PRIORITY);
+export const removeEntry = (agent: AgentInfo): void => {
+  const entries = readEntries();
+
+  delete entries[entryKey(agent)];
+
+  writeEntries(entries);
+};
+
+export const removeEntriesForPane = (paneId: string): void => {
+  const entries = readEntries();
+
+  for (const [key, entry] of Object.entries(entries)) {
+    if (entry.pane_id === paneId) delete entries[key];
+  }
+
+  writeEntries(entries);
+};

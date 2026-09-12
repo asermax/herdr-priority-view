@@ -47,8 +47,10 @@ command = "asermax.priority-view.low"
 description = "priority: low"
 ```
 
-Priorities are stored per pane id under the plugin state dir and reapplied on
-server startup.
+Priorities are stored in the plugin state dir keyed by agent session id, so they
+follow the conversation and survive a server restart. Only the actions write a
+priority; the hooks keep each entry's pane id current and drop entries when
+their pane closes.
 
 ## How it works
 
@@ -56,8 +58,10 @@ herdr keeps a single active agent view, set through `agent.view.set`. Its sort
 fields cannot express "blocked first, then priority", so the plugin writes a
 `rank` metadata token per agent pane (blocked flag plus priority) and the view
 sorts by that token, then status, then herdr's state-change sequence. Event hooks
-on `pane.agent_detected`, `pane.agent_status_changed`, and `pane.closed` keep the
-token current; there is no long-running process.
+on `pane.agent_detected` and `pane.agent_status_changed` recompute the token from
+the live rank token, falling back to the state file when tokens are missing after
+a restart. A `pane.closed` hook removes the closed pane's entries. There is no
+long-running process.
 
 ## Requirements
 

@@ -28,6 +28,7 @@ interface RpcEnvelope {
 export interface AgentInfo {
   readonly pane_id: string;
   readonly agent_status: string | null;
+  readonly agent_session?: { readonly value: string } | null;
   readonly tokens?: Record<string, string> | null;
 }
 

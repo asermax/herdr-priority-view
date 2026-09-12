@@ -1,17 +1,16 @@
 import { parsePaneEvent } from "../src/event";
 import { agentGet } from "../src/herdr-client";
-import { reportAgent } from "../src/report-agent";
-import { getPriority } from "../src/state";
+import { syncAgent } from "../src/sync-agent";
 
 const event = parsePaneEvent();
 
 if (event == null) process.exit(0);
 
 try {
-  // agent_detected carries no status, so fall back to asking herdr for it.
-  const status = event.agent_status ?? (await agentGet(event.pane_id).then((a) => a.agent_status, () => null));
+  // The agent may already be gone by the time the hook runs.
+  const agent = await agentGet(event.pane_id).catch(() => null);
 
-  await reportAgent(event.pane_id, status, getPriority(event.pane_id));
+  if (agent != null) await syncAgent(agent);
 } catch (err) {
   process.stderr.write(`priority-view: ${err instanceof Error ? err.message : String(err)}\n`);
   process.exit(1);
