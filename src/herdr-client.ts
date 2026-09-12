@@ -49,7 +49,7 @@ export const send = (method: string, params: Record<string, unknown>): Promise<u
     };
 
     socket.on("connect", () => {
-      socket.write(`${JSON.stringify({ id: `new-priority-view:${method}`, method, params })}\n`);
+      socket.write(`${JSON.stringify({ id: `priority-view:${method}`, method, params })}\n`);
     });
 
     socket.on("data", (chunk: Buffer) => {

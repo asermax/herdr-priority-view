@@ -1,4 +1,4 @@
-export const VIEW_SOURCE = "asermax.new-priority-view";
+export const VIEW_SOURCE = "asermax.priority-view";
 
 // `status` ascending sorts alphabetically: blocked, done, idle, unknown, working.
 // `state_change_seq` is herdr's global state-change counter, so ascending puts the

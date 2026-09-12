@@ -1,4 +1,4 @@
-# herdr-new-priority-view
+# herdr-priority-view
 
 A [herdr](https://herdr.dev) plugin that replaces the agent panel ordering with one
 that keeps the agent that has been waiting the longest at the top.
@@ -14,13 +14,13 @@ sequence ascending, so the oldest waiting agent comes first.
 
 herdr keeps a single active agent view, set through `agent.view.set`. The plugin
 runs once on server startup and sets that view under the source
-`asermax.new-priority-view`. The sidebar shows the view label, `oldest first`.
+`asermax.priority-view`. The sidebar shows the view label, `oldest first`.
 
 There is nothing to toggle. To go back to the built-in ordering, disable the
 plugin and clear the view:
 
 ```bash
-herdr plugin disable asermax.new-priority-view
+herdr plugin disable asermax.priority-view
 ```
 
 ## Requirements
