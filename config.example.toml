@@ -1,0 +1,11 @@
+# Copy to the plugin's config directory to override any of these:
+#
+#   cp config.example.toml "$(herdr plugin config-dir asermax.priority-view)/config.toml"
+
+# What the `$priority` sidebar token shows for a marked agent. Normal-priority
+# agents never show a token, so they have no label here. Match your sidebar rules
+# in ~/.config/herdr/config.toml to whatever you set: the rules style the value,
+# they do not replace it.
+# [labels]
+# high = "P1"
+# low = "P3"
