@@ -33,3 +33,15 @@ command = ["bun", "bin/on-agent-event.ts"]
 [[events]]
 on = "pane.agent_status_changed"
 command = ["bun", "bin/on-agent-event.ts"]
+
+[[events]]
+on = "pane.focused"
+command = ["bun", "bin/on-focus.ts"]
+
+[[events]]
+on = "tab.focused"
+command = ["bun", "bin/on-focus.ts"]
+
+[[events]]
+on = "workspace.focused"
+command = ["bun", "bin/on-focus.ts"]

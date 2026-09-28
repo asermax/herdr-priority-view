@@ -95,6 +95,11 @@ token and then by herdr's state-change sequence.
 Event hooks on `pane.agent_detected` and `pane.agent_status_changed` recompute the
 token. There is no long-running process.
 
+Focusing a tab marks its agents seen, which turns `done` into `idle`. herdr reports
+that change to socket subscribers but does not run plugin hooks for it, so the
+plugin also hooks `pane.focused`, `tab.focused` and `workspace.focused` and
+rewrites the token of any agent whose rank no longer matches its status.
+
 When an agent exits, herdr fires `pane.agent_detected` with `released: true`, but
 by then it has already cleared the pane's agent and its session id. Pane metadata
 persists after the agent is cleared, so the plugin keeps the session id in a
