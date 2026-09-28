@@ -18,7 +18,7 @@ const label = (priority: Priority): string | null => {
 // already cleared the pane's agent, but pane tokens outlive the agent.
 export const reportAgent = (agent: AgentInfo, priority: Priority): Promise<void> =>
   paneReportTokens(agent.pane_id, {
-    rank: rank(agent.agent_status, priority),
+    rank: rank(agent, priority),
     priority: label(priority),
     session: sessionKey(agent),
   });

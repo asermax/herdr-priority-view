@@ -13,7 +13,8 @@ the panel instead:
 
 1. by status: blocked, then done, then working, then idle, then unknown
 2. within a status, higher priority first
-3. within a priority, the agent that has been waiting the longest first
+3. within a priority, the agent that has been waiting the longest first, except
+   for idle agents, where the most recently active comes first
 
 A blocked agent always comes first, and an agent whose result you have not seen
 comes before one you already looked at.

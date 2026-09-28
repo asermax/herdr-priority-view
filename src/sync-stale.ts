@@ -12,7 +12,7 @@ export const syncStale = async (): Promise<void> => {
 
   await Promise.all(
     agents
-      .filter((agent) => agent.tokens?.rank !== rank(agent.agent_status, resolvePriority(agent)))
+      .filter((agent) => agent.tokens?.rank !== rank(agent, resolvePriority(agent)))
       .map(syncAgent),
   );
 };

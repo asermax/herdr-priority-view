@@ -33,6 +33,7 @@ export interface PaneInfo {
 export interface AgentInfo {
   readonly pane_id: string;
   readonly agent_status: string | null;
+  readonly state_change_seq?: number;
   readonly agent_session?: { readonly value: string } | null;
   readonly tokens?: Record<string, string> | null;
 }
